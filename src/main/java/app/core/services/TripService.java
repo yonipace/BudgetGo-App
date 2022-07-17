@@ -15,6 +15,7 @@ import app.core.entities.ExchangeRate;
 import app.core.entities.ExchangeRate.Currency;
 import app.core.entities.Expense;
 import app.core.entities.Trip;
+import app.core.entities.User;
 import app.core.exceptions.TravelBudgetException;
 
 @Service
@@ -24,11 +25,25 @@ public class TripService extends ClientService {
 	@Autowired
 	private CurrencyConverter currencyConverter;
 
-	public Expense addExpense(Expense expense, int tripId) throws TravelBudgetException {
+	private boolean validateTripUser(Trip trip, int userId) throws TravelBudgetException {
+
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new TravelBudgetException("user " + userId + " not found"));
+
+		return trip.getUsers().contains(user);
+	}
+
+	public Expense addExpense(Expense expense, int tripId, int userId) throws TravelBudgetException {
+
+		if (!validateTripUser(getDetails(tripId), userId)) {
+			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
+		}
 
 		if (expenseRepo.existsById(expense.getId())) {
 			throw new TravelBudgetException("Failed to add expense - expense already exists");
 		}
+		// set trip
+		expense.setTrip(getDetails(tripId));
 		// set currency exchange
 		expense.setAmount(calculateAmount(expense, tripId));
 
@@ -36,7 +51,13 @@ public class TripService extends ClientService {
 
 	}
 
-	public void updateExpense(Expense expense, int tripId) throws TravelBudgetException {
+	public void updateExpense(Expense expense, int tripId, int userId) throws TravelBudgetException {
+
+		if (!validateTripUser(getDetails(tripId), userId)) {
+			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
+		}
+		// set trip
+		expense.setTrip(getDetails(tripId));
 
 		// set currency exchange
 		expense.setAmount(calculateAmount(expense, tripId));
@@ -45,22 +66,43 @@ public class TripService extends ClientService {
 				() -> new TravelBudgetException(
 						"Failed to update expense - expense " + expense.getId() + " does not exist"));
 
+//		Expense e = expenseRepo.findById(expense.getId()).orElseThrow(() -> new TravelBudgetException(
+//				"Failed to update expense - expense " + expense.getId() + " does not exist"));
+//		
+//		return expenseRepo.save(e);
+
 	}
 
-	public void deleteExpense(int expenseId) throws TravelBudgetException {
+	public void deleteExpense(int expenseId, int userId) throws TravelBudgetException {
 
-		expenseRepo.findById(expenseId).ifPresentOrElse((e) -> expenseRepo.deleteById(e.getId()),
+		Expense e = expenseRepo.findById(expenseId).orElseThrow(
 				() -> new TravelBudgetException("Failed to delete expense - expense " + expenseId + " does not exist"));
 
+		if (!validateTripUser(e.getTrip(), userId)) {
+			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
+		}
+
+		expenseRepo.deleteById(e.getId());
+
 	}
 
-	public Expense getOneExpense(int expenseId) throws TravelBudgetException {
+	public Expense getOneExpense(int expenseId, int userId) throws TravelBudgetException {
 
-		return expenseRepo.findById(expenseId).orElseThrow(
-				() -> new TravelBudgetException("Failed to get expense - expense " + expenseId + " does not exist"));
+		Expense e = expenseRepo.findById(expenseId).orElseThrow(
+				() -> new TravelBudgetException("Failed to delete expense - expense " + expenseId + " does not exist"));
+
+		if (!validateTripUser(e.getTrip(), userId)) {
+			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
+		}
+
+		return e;
 	}
 
-	public List<Expense> getAllExpenses(int tripId) throws TravelBudgetException {
+	public List<Expense> getAllExpenses(int tripId, int userId) throws TravelBudgetException {
+
+		if (!validateTripUser(getDetails(tripId), userId)) {
+			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
+		}
 
 		return expenseRepo.findAllByTripId(tripId);
 	}
@@ -73,8 +115,8 @@ public class TripService extends ClientService {
 
 	private double calculateAmount(Expense expense, int tripId) throws TravelBudgetException {
 
-		double localAmount = expense.getAmount();
-		Currency myLocalCurrency = getDetails(tripId).getMyLocalCurrency();
+		double localAmount = expense.getLocalAmount();
+		Currency myLocalCurrency = getDetails(tripId).getCurrency();
 		ExchangeRate exchangeRate = getOneExchangeRate(expense.getLocalCurrencyCode(), myLocalCurrency);
 		return localAmount * exchangeRate.getRate();
 

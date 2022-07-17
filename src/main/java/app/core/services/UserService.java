@@ -27,20 +27,23 @@ public class UserService extends ClientService {
 		if (tripRepo.existsById(trip.getId())) {
 			throw new TravelBudgetException("Failed to add trip - trip already exists");
 		}
+
+		trip.addUser(getDetails(userId));
+
 		return tripRepo.save(trip);
 
 	}
 
-	public void updateTrip(Trip trip) throws TravelBudgetException {
+	public void updateTrip(Trip trip, int userId) throws TravelBudgetException {
 
-		tripRepo.findById(trip.getId()).ifPresentOrElse((t) -> tripRepo.save(trip),
+		tripRepo.findByIdAndUsersId(trip.getId(), userId).ifPresentOrElse((t) -> tripRepo.save(trip),
 				() -> new TravelBudgetException("Failed to update - trip does not exist"));
 
 	}
 
-	public Trip getOneTrip(int tripId) throws TravelBudgetException {
+	public Trip getOneTrip(int tripId, int userId) throws TravelBudgetException {
 
-		return tripRepo.findById(tripId)
+		return tripRepo.findByIdAndUsersId(tripId, userId)
 				.orElseThrow(() -> new TravelBudgetException("Failed to get trip - trip " + tripId + " not found"));
 
 	}
@@ -51,11 +54,15 @@ public class UserService extends ClientService {
 
 	}
 
-	public void deleteTrip(int tripId) throws NotFoundException {
+	public void deleteTrip(int tripId, int userId) throws NotFoundException {
 
-		tripRepo.findById(tripId).ifPresentOrElse((t) -> tripRepo.deleteById(t.getId()),
+		tripRepo.findByIdAndUsersId(tripId, userId).ifPresentOrElse((t) -> tripRepo.deleteById(t.getId()),
 				() -> new TravelBudgetException("Failed to delete - trip does not exist"));
 
+	}
+
+	public User getDetails(int id) throws TravelBudgetException {
+		return userRepo.findById(id).orElseThrow(() -> new TravelBudgetException("Failed to get user " + id));
 	}
 
 }

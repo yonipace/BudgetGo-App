@@ -28,4 +28,8 @@ public class TravelBudgetException extends Exception {
 		super(cause);
 	}
 
+	public TravelBudgetException(String string, String message) {
+		// TODO Auto-generated constructor stub
+	}
+
 }

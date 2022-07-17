@@ -11,5 +11,7 @@ public class Auth {
 	private String email;
 	private ClientType client;
 	private String token;
+	private String firstName;
+	private String lastName;
 
 }

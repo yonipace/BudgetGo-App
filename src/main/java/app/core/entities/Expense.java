@@ -54,6 +54,18 @@ public class Expense {
 		this.note = note;
 	}
 
+	// this CTOR is used for sending an updated expense
+	public Expense(int id, String name, Category category, double localAmount, Currency localCurrencyCode,
+			LocalDate date, String note) {
+
+		this.title = name;
+		this.category = category;
+		this.localAmount = localAmount;
+		this.localCurrencyCode = localCurrencyCode;
+		this.date = date;
+		this.note = note;
+	}
+
 	public enum Category {
 
 		FOOD, FLIGHT, TRANSPORTATION, HOTEL, ACCOMADATION, SHOPPING, RESTAURANT, ATTRATCION, INSURANCE, MEDICAL, FEES,

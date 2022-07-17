@@ -1,6 +1,5 @@
 package app.core.entities;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -12,8 +11,11 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -23,6 +25,7 @@ import lombok.ToString;
 @Table(name = "users")
 @ToString(exclude = "trips")
 @Entity
+@EqualsAndHashCode(of = "id")
 public class User {
 
 	@Id
@@ -34,6 +37,7 @@ public class User {
 	private String password;
 	@ManyToMany
 	@JoinTable(name = "users_trips", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "trip_id"))
+	@JsonIgnore
 	private Set<Trip> trips;
 
 	public User(String firstName, String lastName, String email, String password) {
@@ -44,16 +48,13 @@ public class User {
 		this.password = password;
 	}
 
-	public void addTrip(Trip trip) {
-
-		if (this.trips == null) {
-
-			this.trips = new HashSet<Trip>();
-
-		}
-
-		this.trips.add(trip);
-
-	}
+//	public void addTrip(Trip trip) {
+//
+//		if (this.trips == null) {
+//			this.trips = new ArrayList<Trip>();
+//		}
+//		this.trips.add(trip);
+//
+//	}
 
 }

@@ -43,6 +43,7 @@ public class UserController {
 
 	@PutMapping
 	public void updateTrip(@RequestBody Trip trip, @RequestHeader String token) throws TravelBudgetException {
+		System.out.println("from controller: " + trip);
 		try {
 			userService.updateTrip(trip, jwtUtil.extractId(token));
 		} catch (Exception e) {

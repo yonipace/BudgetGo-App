@@ -50,6 +50,7 @@ public class UserFilter implements Filter {
 			}
 
 		} catch (Exception e) {
+			e.printStackTrace();
 
 			response.sendError(HttpStatus.UNAUTHORIZED.value(), "you are not logged in from filter");
 

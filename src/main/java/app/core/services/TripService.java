@@ -2,6 +2,7 @@ package app.core.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -35,7 +36,9 @@ public class TripService extends ClientService {
 
 	public Expense addExpense(Expense expense, int tripId, int userId) throws TravelBudgetException {
 
-		if (!validateTripUser(getDetails(tripId), userId)) {
+		Trip trip = getDetails(tripId);
+
+		if (!validateTripUser(trip, userId)) {
 			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
 		}
 
@@ -43,9 +46,11 @@ public class TripService extends ClientService {
 			throw new TravelBudgetException("Failed to add expense - expense already exists");
 		}
 		// set trip
-		expense.setTrip(getDetails(tripId));
+		expense.setTrip(trip);
 		// set currency exchange
 		expense.setAmount(calculateAmount(expense, tripId));
+		// update total amount
+		updateTotalAmount(trip);
 
 		return expenseRepo.save(expense);
 
@@ -53,11 +58,13 @@ public class TripService extends ClientService {
 
 	public void updateExpense(Expense expense, int tripId, int userId) throws TravelBudgetException {
 
-		if (!validateTripUser(getDetails(tripId), userId)) {
+		Trip trip = getDetails(tripId);
+
+		if (!validateTripUser(trip, userId)) {
 			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
 		}
 		// set trip
-		expense.setTrip(getDetails(tripId));
+		expense.setTrip(trip);
 
 		// set currency exchange
 		expense.setAmount(calculateAmount(expense, tripId));
@@ -66,10 +73,8 @@ public class TripService extends ClientService {
 				() -> new TravelBudgetException(
 						"Failed to update expense - expense " + expense.getId() + " does not exist"));
 
-//		Expense e = expenseRepo.findById(expense.getId()).orElseThrow(() -> new TravelBudgetException(
-//				"Failed to update expense - expense " + expense.getId() + " does not exist"));
-//		
-//		return expenseRepo.save(e);
+		// update total amount
+		updateTotalAmount(trip);
 
 	}
 
@@ -78,11 +83,16 @@ public class TripService extends ClientService {
 		Expense e = expenseRepo.findById(expenseId).orElseThrow(
 				() -> new TravelBudgetException("Failed to delete expense - expense " + expenseId + " does not exist"));
 
-		if (!validateTripUser(e.getTrip(), userId)) {
+		Trip trip = e.getTrip();
+
+		if (!validateTripUser(trip, userId)) {
 			throw new TravelBudgetException("failed to execute method - trip does not belong to user");
 		}
 
 		expenseRepo.deleteById(e.getId());
+
+		// update total amount
+		updateTotalAmount(trip);
 
 	}
 
@@ -111,6 +121,22 @@ public class TripService extends ClientService {
 
 		return tripRepo.findById(tripId)
 				.orElseThrow(() -> new TravelBudgetException("Failed to get trip - trip " + tripId + " not found"));
+	}
+
+	private void updateTotalAmount(Trip trip) {
+
+		double sum = expenseRepo.findAllByTripId(trip.getId())
+
+				.stream().map(e -> e.getAmount())
+
+				.collect(Collectors.summingDouble(Double::doubleValue));
+
+		trip.setTotalSpent(sum);
+		if (trip.getBudget() < sum) {
+			trip.setOverBudget(true);
+		}
+		tripRepo.save(trip);
+
 	}
 
 	private double calculateAmount(Expense expense, int tripId) throws TravelBudgetException {

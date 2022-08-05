@@ -14,14 +14,17 @@ public class ApiRequest2 {
 
 		ObjectMapper objectMapper;
 
-		BaseCurrency baseCurrency = Unirest
-				.get("https://currency-converter5.p.rapidapi.com/currency/convert?format=json&from=USD&to=EUR&amount=1")
-				.header("x-rapidapi-host", "currency-converter5.p.rapidapi.com")
-				.header("x-rapidapi-key", "0e72af5013msh66d35c4001964d7p1a8d68jsndc5983152a21")
-				.asObject(BaseCurrency.class).getBody();
+//		BaseCurrency baseCurrency = Unirest
+//				.get("https://currency-converter5.p.rapidapi.com/currency/convert?format=json&from=USD")
+//				.header("x-rapidapi-host", "currency-converter5.p.rapidapi.com")
+//				.header("x-rapidapi-key", "0e72af5013msh66d35c4001964d7p1a8d68jsndc5983152a21").asJson();
 
-		System.out.println(baseCurrency.getStatus());
-		System.out.println(baseCurrency);
+		System.out
+				.println(Unirest.get("https://currency-converter5.p.rapidapi.com/currency/convert?format=json&from=USD")
+						.header("x-rapidapi-host", "currency-converter5.p.rapidapi.com")
+						.header("x-rapidapi-key", "0e72af5013msh66d35c4001964d7p1a8d68jsndc5983152a21"));
+
+//		System.out.println(baseCurrency);
 
 //
 //		try {

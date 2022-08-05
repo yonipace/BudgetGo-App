@@ -74,7 +74,9 @@ public class TripController {
 	@GetMapping
 	public List<Expense> getallExpenses(@RequestParam int tripId, @RequestHeader String token) {
 		try {
-			return tripService.getAllExpenses(tripId, jwtUtil.extractId(token));
+			List<Expense> expenses = tripService.getAllExpenses(tripId, jwtUtil.extractId(token));
+			System.out.println(expenses);
+			return expenses;
 		} catch (TravelBudgetException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}

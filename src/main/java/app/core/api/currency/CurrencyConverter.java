@@ -47,7 +47,7 @@ public class CurrencyConverter {
 		// get http response from api
 		HttpResponse<String> response = currencyConverterResponse(base, target, amount).asString();
 		if (response.getStatus() != 200) {
-			throw new TravelBudgetException(response.getStatusText());
+			throw new TravelBudgetException(String.valueOf(response.getStatus()));
 		}
 
 		// get base currency from objectMapper
@@ -77,7 +77,7 @@ public class CurrencyConverter {
 		// get http response from api
 		HttpResponse<String> response = currencyConverterResponse(base).asString();
 		if (response.getStatus() != 200) {
-			throw new TravelBudgetException(response.getStatusText());
+			throw new TravelBudgetException(String.valueOf(response.getStatus()));
 		}
 		// get base currency from objectMapper
 		BaseCurrency currency = objectMapper.readValue(response.getBody(), BaseCurrency.class);
@@ -97,6 +97,24 @@ public class CurrencyConverter {
 			exchangeRates.add(exchangeRate);
 		}
 		return exchangeRates;
+	}
+
+	public Map<String, TargetCurrency> getRatesMap(Currency base) throws Exception {
+		// get http response from api
+		HttpResponse<String> response = currencyConverterResponse(base).asString();
+		if (response.getStatus() != 200) {
+			throw new TravelBudgetException(String.valueOf(response.getStatus()));
+		}
+		try {
+
+			// get base currency from objectMapper
+			BaseCurrency currency = objectMapper.readValue(response.getBody(), BaseCurrency.class);
+
+			// get target currencies from the rates list
+			return currency.getRates().getAdditionalProperties();
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}
 	}
 
 	// get one exchange rate for specified currency pair

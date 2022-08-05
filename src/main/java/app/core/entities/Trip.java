@@ -49,12 +49,9 @@ public class Trip {
 	private Currency currency;
 	private LocalDate startDate;
 	private LocalDate endDate;
-
 	@ManyToMany
 	@JoinTable(name = "users_trips", joinColumns = @JoinColumn(name = "trip_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-	@JsonIgnore
 	private Set<User> users;
-
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "trip")
 	private List<Expense> expenses;

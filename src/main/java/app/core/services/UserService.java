@@ -36,8 +36,17 @@ public class UserService extends ClientService {
 
 	public void updateTrip(Trip trip, int userId) throws TravelBudgetException {
 
-		tripRepo.findByIdAndUsersId(trip.getId(), userId).ifPresentOrElse((t) -> tripRepo.save(trip),
-				() -> new TravelBudgetException("Failed to update - trip does not exist"));
+		System.out.println("from service: " + trip);
+
+		Optional<Trip> opt = tripRepo.findByIdAndUsersId(trip.getId(), userId);
+
+		if (opt.isPresent()) {
+			System.out.println("trip from db: " + opt.get());
+			System.out.println("trip save: " + tripRepo.save(trip));
+		}
+
+//		tripRepo.findByIdAndUsersId(trip.getId(), userId).ifPresentOrElse((t) -> tripRepo.save(trip),
+//				() -> new TravelBudgetException("Failed to update - trip does not exist"));
 
 	}
 

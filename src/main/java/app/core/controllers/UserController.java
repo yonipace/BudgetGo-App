@@ -42,10 +42,9 @@ public class UserController {
 	}
 
 	@PutMapping
-	public void updateTrip(@RequestBody Trip trip, @RequestHeader String token) throws TravelBudgetException {
-		System.out.println("from controller: " + trip);
+	public Trip updateTrip(@RequestBody Trip trip, @RequestHeader String token) throws TravelBudgetException {
 		try {
-			userService.updateTrip(trip, jwtUtil.extractId(token));
+			return userService.updateTrip(trip, jwtUtil.extractId(token));
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
@@ -77,6 +76,18 @@ public class UserController {
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
+	}
+
+	@PostMapping("add-user")
+	public Trip addUserToTrip(@RequestParam int tripId, @RequestParam String email, @RequestHeader String token) {
+
+		try {
+			return userService.addUserToTrip(tripId, jwtUtil.extractId(token), email);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+
+		}
+
 	}
 
 }

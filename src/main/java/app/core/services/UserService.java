@@ -34,20 +34,14 @@ public class UserService extends ClientService {
 
 	}
 
-	public void updateTrip(Trip trip, int userId) throws TravelBudgetException {
+	public Trip updateTrip(Trip trip, int userId) throws TravelBudgetException {
 
-		System.out.println("from service: " + trip);
+		if (tripRepo.existsByIdAndUsersId(trip.getId(), userId)) {
 
-		Optional<Trip> opt = tripRepo.findByIdAndUsersId(trip.getId(), userId);
-
-		if (opt.isPresent()) {
-			System.out.println("trip from db: " + opt.get());
-			System.out.println("trip save: " + tripRepo.save(trip));
+			return tripRepo.save(trip);
+		} else {
+			throw new TravelBudgetException("Failed to update - trip does not exist");
 		}
-
-//		tripRepo.findByIdAndUsersId(trip.getId(), userId).ifPresentOrElse((t) -> tripRepo.save(trip),
-//				() -> new TravelBudgetException("Failed to update - trip does not exist"));
-
 	}
 
 	public Trip getOneTrip(int tripId, int userId) throws TravelBudgetException {
@@ -72,6 +66,20 @@ public class UserService extends ClientService {
 
 	public User getDetails(int id) throws TravelBudgetException {
 		return userRepo.findById(id).orElseThrow(() -> new TravelBudgetException("Failed to get user " + id));
+	}
+
+	public Trip addUserToTrip(int tripId, int userId, String userEmail) throws TravelBudgetException {
+
+		Trip trip = tripRepo.findByIdAndUsersId(tripId, userId)
+				.orElseThrow(() -> new TravelBudgetException("trip does not exist"));
+
+		User newUser = userRepo.findByEmail(userEmail)
+				.orElseThrow(() -> new TravelBudgetException("user " + userEmail + " does not exist"));
+
+		trip.addUser(newUser);
+
+		return tripRepo.save(trip);
+
 	}
 
 }

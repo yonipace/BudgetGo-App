@@ -56,7 +56,7 @@ public class TripService extends ClientService {
 
 	}
 
-	public void updateExpense(Expense expense, int tripId, int userId) throws TravelBudgetException {
+	public Expense updateExpense(Expense expense, int tripId, int userId) throws TravelBudgetException {
 
 		Trip trip = getDetails(tripId);
 
@@ -69,13 +69,19 @@ public class TripService extends ClientService {
 		// set currency exchange
 		expense.setAmount(calculateAmount(expense, tripId));
 
-		expenseRepo.findById(expense.getId()).ifPresentOrElse((e) -> expenseRepo.save(expense),
-				() -> new TravelBudgetException(
-						"Failed to update expense - expense " + expense.getId() + " does not exist"));
+		Expense updatedExpense = null;
 
+		if (expenseRepo.existsById(expense.getId())) {
+			updatedExpense = expenseRepo.save(expense);
+		} else {
+			throw new TravelBudgetException(
+					"Failed to update expense - expense " + expense.getId() + " does not exist");
+		}
 		// update total amount
 		updateTotalAmount(trip);
 
+		// after everything is updated - return the updated expense
+		return updatedExpense;
 	}
 
 	public void deleteExpense(int expenseId, int userId) throws TravelBudgetException {

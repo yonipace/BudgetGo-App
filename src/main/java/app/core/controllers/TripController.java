@@ -42,10 +42,10 @@ public class TripController {
 	}
 
 	@PutMapping
-	public void updateExpense(@RequestBody Expense expense, @RequestParam int tripId, @RequestHeader String token) {
+	public Expense updateExpense(@RequestBody Expense expense, @RequestParam int tripId, @RequestHeader String token) {
 
 		try {
-			tripService.updateExpense(expense, tripId, jwtUtil.extractId(token));
+			return tripService.updateExpense(expense, tripId, jwtUtil.extractId(token));
 		} catch (TravelBudgetException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
@@ -75,7 +75,6 @@ public class TripController {
 	public List<Expense> getallExpenses(@RequestParam int tripId, @RequestHeader String token) {
 		try {
 			List<Expense> expenses = tripService.getAllExpenses(tripId, jwtUtil.extractId(token));
-			System.out.println(expenses);
 			return expenses;
 		} catch (TravelBudgetException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

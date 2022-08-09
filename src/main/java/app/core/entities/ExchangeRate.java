@@ -39,7 +39,7 @@ public class ExchangeRate {
 	public enum Currency {
 
 		ILS, USD, EUR, INR, GBP, THB, PLN, AUD, CAD, NZD, SGD, CHF, JPY, CZK, ISK, HUF, VND, JOD, ETB, ARS, NPR, RUB,
-		MXN, GEL, BRL, TRY, EGP;
+		MXN, GEL, BRL, TRY, EGP
 
 	}
 

@@ -68,18 +68,4 @@ public class UserService extends ClientService {
 		return userRepo.findById(id).orElseThrow(() -> new TravelBudgetException("Failed to get user " + id));
 	}
 
-	public Trip addUserToTrip(int tripId, int userId, String userEmail) throws TravelBudgetException {
-
-		Trip trip = tripRepo.findByIdAndUsersId(tripId, userId)
-				.orElseThrow(() -> new TravelBudgetException("trip does not exist"));
-
-		User newUser = userRepo.findByEmail(userEmail)
-				.orElseThrow(() -> new TravelBudgetException("user " + userEmail + " does not exist"));
-
-		trip.addUser(newUser);
-
-		return tripRepo.save(trip);
-
-	}
-
 }

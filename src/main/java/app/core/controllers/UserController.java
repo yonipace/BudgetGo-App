@@ -78,16 +78,4 @@ public class UserController {
 		}
 	}
 
-	@PostMapping("add-user")
-	public Trip addUserToTrip(@RequestParam int tripId, @RequestParam String email, @RequestHeader String token) {
-
-		try {
-			return userService.addUserToTrip(tripId, jwtUtil.extractId(token), email);
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-
-		}
-
-	}
-
 }

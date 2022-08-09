@@ -129,6 +129,20 @@ public class TripService extends ClientService {
 				.orElseThrow(() -> new TravelBudgetException("Failed to get trip - trip " + tripId + " not found"));
 	}
 
+	public Trip addUserToTrip(int tripId, int userId, String userEmail) throws TravelBudgetException {
+
+		Trip trip = tripRepo.findByIdAndUsersId(tripId, userId)
+				.orElseThrow(() -> new TravelBudgetException("trip does not exist"));
+
+		User newUser = userRepo.findByEmail(userEmail)
+				.orElseThrow(() -> new TravelBudgetException("could not find " + userEmail));
+
+		trip.addUser(newUser);
+
+		return tripRepo.save(trip);
+
+	}
+
 	private void updateTotalAmount(Trip trip) {
 
 		double sum = expenseRepo.findAllByTripId(trip.getId())

@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import app.core.auth.JwtUtil;
 import app.core.entities.Expense;
+import app.core.entities.Trip;
 import app.core.exceptions.TravelBudgetException;
 import app.core.services.TripService;
 
@@ -79,6 +80,19 @@ public class TripController {
 		} catch (TravelBudgetException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
+	}
+
+	@PostMapping("add-user")
+	public Trip addUserToTrip(@RequestParam int tripId, @RequestBody String email, @RequestHeader String token) {
+
+		try {
+			System.out.println("from controller: " + email);
+			return tripService.addUserToTrip(tripId, jwtUtil.extractId(token), email);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+
+		}
+
 	}
 
 }

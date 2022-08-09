@@ -21,9 +21,9 @@ import app.core.services.AdminService;
 public class SignUpController {
 
 	@Autowired
-	AdminService adminService;
+	private AdminService adminService;
 	@Autowired
-	JwtUtil jwtUtil;
+	private JwtUtil jwtUtil;
 
 	@PostMapping
 	public Auth signUp(@RequestBody User newUser) {

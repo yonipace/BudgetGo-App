@@ -2,84 +2,58 @@ package app.core.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import app.core.auth.JwtUtil.ClientType;
+import app.core.entities.User;
 import app.core.exceptions.TravelBudgetException;
-import app.core.services.AdminService;
-import app.core.services.UserService;
+import app.core.repositories.UserRepository;
 
 @Component
 public class LoginManager {
 
 	@Autowired
-	AdminService adminService;
+	private UserRepository userRepo;
 	@Autowired
-	UserService userService;
+	private JwtUtil jwtUtil;
 	@Autowired
-	JwtUtil jwtUtil;
+	private PasswordEncoder passwordEncoder;
 
 	@Value("${admin.email}")
 	private String adminEmail;
 	@Value("${admin.password}")
 	private String adminPassword;
 
-	public String login(String email, String password) throws TravelBudgetException {
+	public Auth login(String email, String password) throws TravelBudgetException {
+
+		Auth auth = new Auth();
 
 		if (email.equals(adminEmail) && password.equals(adminPassword)) {
 
-			return jwtUtil.generateToken(0, email, ClientType.ADMIN);
+			auth.setClient(ClientType.ADMIN);
+			auth.setFirstName("Admin");
+			auth.setToken(jwtUtil.generateToken(0, email, ClientType.ADMIN));
+
+			return auth;
+
 		}
 
-		int userId = userService.login(email, password);
+		User user = userRepo.findByEmail(email).orElseThrow(() -> new TravelBudgetException(email + " does not exist"));
 
-		if (userId == -1) {
-			throw new TravelBudgetException("Login failed - email or password are incorrect");
+		if (passwordEncoder.matches(password, user.getPassword())) {
+
+			auth.setClient(ClientType.USER);
+			auth.setFirstName(user.getFirstName());
+			auth.setLastName(user.getLastName());
+			auth.setEmail(email);
+			auth.setToken(jwtUtil.generateToken(user.getId(), email, ClientType.USER));
+
+			return auth;
 		}
-		String token = jwtUtil.generateToken(userId, email, ClientType.USER);
 
-		return token;
+		throw new TravelBudgetException("Login failed - email or password are incorrect");
 
 	}
 
-	public ClientType getClient(String email, String password) {
-
-		if (email.equals(adminEmail) && password.equals(adminPassword)) {
-			return ClientType.ADMIN;
-		} else {
-			return ClientType.USER;
-		}
-
-	}
-
-	public Auth getAuth(String email, String password) throws TravelBudgetException {
-
-		String token;
-		ClientType client;
-		String firstName;
-		String lastName;
-
-		if (email.equals(adminEmail) && password.equals(adminPassword)) {
-
-			token = jwtUtil.generateToken(0, email, ClientType.ADMIN);
-			client = ClientType.ADMIN;
-			firstName = "Admin";
-			lastName = "";
-
-		} else {
-
-			int userId = userService.login(email, password);
-
-			if (userId == -1) {
-				throw new TravelBudgetException("Login failed - email or password are incorrect");
-			}
-			token = jwtUtil.generateToken(userId, email, ClientType.USER);
-			client = ClientType.USER;
-			firstName = userService.getDetails(userId).getFirstName();
-			lastName = userService.getDetails(userId).getLastName();
-
-		}
-		return new Auth(email, client, token, firstName, lastName);
-
-	}
 }

@@ -3,6 +3,8 @@ package app.core.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import app.core.entities.User;
@@ -10,6 +12,9 @@ import app.core.exceptions.TravelBudgetException;
 
 @Service
 public class AdminService extends ClientService {
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	public User addUser(User user) throws TravelBudgetException {
 
@@ -19,6 +24,9 @@ public class AdminService extends ClientService {
 		if (userRepo.existsByEmail(user.getEmail())) {
 			throw new TravelBudgetException("failed to add user: user " + user.getEmail() + " already exists");
 		}
+
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+
 		return userRepo.save(user);
 	}
 

@@ -29,7 +29,7 @@ public class LoginController {
 		String password = credentials.getPassword();
 
 		try {
-			return loginManager.getAuth(email, password);
+			return loginManager.login(email, password);
 		} catch (TravelBudgetException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
 		}

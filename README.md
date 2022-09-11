@@ -1,6 +1,6 @@
 # BudgetGo
 
-BudgetGo is an App for tracking expenses on a trip.
+### Application for tracking expenses on a trip.
 
 BudgetGo is a full-stack application built for tracking expenses while travelling.
 The app enables users to sign up and keep track of their expenses while on a trip.

@@ -9,10 +9,10 @@ Using the Currency Converter API, each expense is converted to a single currency
 
 ## Technologies
 
-DB: PostgreSQL
-Backend: Java, Spring boot (JPA)
-Frontend: React.js, Redux, Material UI
-Auth: Spring WebFilter, JWT, Bcrypt.
+* DB: PostgreSQL
+* Backend: Java, Spring boot (JPA)
+* Frontend: React.js, Redux, Material UI
+* Auth: Spring WebFilter, JWT, Bcrypt.
 
 ## Getting started
 

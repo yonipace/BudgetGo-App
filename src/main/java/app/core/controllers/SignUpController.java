@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import app.core.auth.Auth;
 import app.core.auth.JwtUtil;
 import app.core.auth.JwtUtil.ClientType;
 import app.core.entities.User;
@@ -26,16 +25,12 @@ public class SignUpController {
 	private JwtUtil jwtUtil;
 
 	@PostMapping
-	public Auth signUp(@RequestBody User newUser) {
+	public String signUp(@RequestBody User newUser) {
 
 		User user = addNewUser(newUser);
-		String email = user.getEmail();
-		String firstName = user.getFirstName();
-		String lastName = user.getLastName();
-		ClientType client = ClientType.USER;
-		String token = jwtUtil.generateToken(user.getId(), email, client);
 
-		return new Auth(email, client, token, firstName, lastName);
+		return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(),
+				ClientType.USER);
 
 	}
 

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import app.core.auth.Auth;
 import app.core.auth.LoginCredentials;
 import app.core.auth.LoginManager;
 import app.core.exceptions.TravelBudgetException;
@@ -23,7 +22,7 @@ public class LoginController {
 	private LoginManager loginManager;
 
 	@PostMapping
-	public Auth login(@RequestBody LoginCredentials credentials) throws TravelBudgetException {
+	public String login(@RequestBody LoginCredentials credentials) throws TravelBudgetException {
 
 		String email = credentials.getEmail();
 		String password = credentials.getPassword();

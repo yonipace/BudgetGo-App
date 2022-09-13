@@ -39,10 +39,12 @@ public class JwtUtil {
 		this.key = new SecretKeySpec(secretDecoded, alg);
 	}
 
-	public String generateToken(int id, String email, ClientType clientType) {
+	public String generateToken(int id, String email, String fisrtName, String lastName, ClientType clientType) {
 
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("clientId", id);
+		claims.put("firstName", fisrtName);
+		claims.put("lastName", lastName);
 		claims.put("clientType", clientType);
 		return createToken(claims, email);
 

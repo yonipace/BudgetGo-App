@@ -16,12 +16,9 @@ public class FieldData {
 
         PersonExcelWriter personExcelWriter = new PersonExcelWriter(list);
 
-        personExcelWriter.createHeaderRow();
-
-        personExcelWriter.createTableRows();
 
         try {
-            personExcelWriter.writeToExcel("Person sheet");
+            personExcelWriter.writeToExcel("src/main/resources/static/files", "Person Sheet");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

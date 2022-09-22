@@ -1,98 +1,84 @@
 package app.core.controllers;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
 import app.core.auth.JwtUtil;
-import app.core.entities.Expense;
 import app.core.entities.Trip;
 import app.core.exceptions.TravelBudgetException;
 import app.core.services.TripService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-@CrossOrigin
+import java.util.List;
+
 @RestController
 @RequestMapping("/trip")
+@CrossOrigin
 public class TripController {
 
-	@Autowired
-	private TripService tripService;
-	@Autowired
-	private JwtUtil jwtUtil;
+    @Autowired
+    private TripService tripService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
-	@PostMapping
-	public Expense addExpense(@RequestBody Expense expense, @RequestParam int tripId, @RequestHeader String token) {
+    @PostMapping
+    public Trip addTrip(@RequestBody Trip trip, @RequestHeader String token) throws TravelBudgetException {
 
-		try {
-			return tripService.addExpense(expense, tripId, jwtUtil.extractId(token));
-		} catch (TravelBudgetException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
-	}
+        try {
+            return tripService.addTrip(trip, jwtUtil.extractId(token));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
-	@PutMapping
-	public Expense updateExpense(@RequestBody Expense expense, @RequestParam int tripId, @RequestHeader String token) {
+    @PutMapping
+    public Trip updateTrip(@RequestBody Trip trip, @RequestHeader String token) throws TravelBudgetException {
+        try {
+            return tripService.updateTrip(trip, jwtUtil.extractId(token));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
-		try {
-			return tripService.updateExpense(expense, tripId, jwtUtil.extractId(token));
-		} catch (TravelBudgetException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
-	}
+    @DeleteMapping
+    public void deleteTrip(@RequestParam int tripId, @RequestHeader String token) throws TravelBudgetException {
+        try {
+            tripService.deleteTrip(tripId, jwtUtil.extractId(token));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
-	@DeleteMapping
-	public void deleteExpense(@RequestParam int id, @RequestHeader String token) {
+    @GetMapping("/get-trip")
+    public Trip getOneTrip(@RequestParam int tripId, @RequestHeader String token) throws TravelBudgetException {
+        try {
+            return tripService.getOneTrip(tripId, jwtUtil.extractId(token));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
-		try {
-			tripService.deleteExpense(id, jwtUtil.extractId(token));
-		} catch (TravelBudgetException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
-	}
+    @GetMapping
+    public List<Trip> getAllTrips(@RequestHeader String token) {
 
-	@GetMapping("get-one")
-	public Expense getOneExpense(@RequestParam int expenseId, @RequestHeader String token) {
+        try {
+            return tripService.getAllTrips(jwtUtil.extractId(token));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
-		try {
-			return tripService.getOneExpense(expenseId, jwtUtil.extractId(token));
-		} catch (TravelBudgetException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
-	}
+    @PostMapping("add-user")
+    public Trip addUserToTrip(@RequestParam int tripId, @RequestBody String email, @RequestHeader String token) {
 
-	@GetMapping
-	public List<Expense> getallExpenses(@RequestParam int tripId, @RequestHeader String token) {
-		try {
-			List<Expense> expenses = tripService.getAllExpenses(tripId, jwtUtil.extractId(token));
-			return expenses;
-		} catch (TravelBudgetException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-		}
-	}
+        try {
+            System.out.println("from controller: " + email);
+            return tripService.addUserToTrip(tripId, jwtUtil.extractId(token), email);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 
-	@PostMapping("add-user")
-	public Trip addUserToTrip(@RequestParam int tripId, @RequestBody String email, @RequestHeader String token) {
+        }
 
-		try {
-			System.out.println("from controller: " + email);
-			return tripService.addUserToTrip(tripId, jwtUtil.extractId(token), email);
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-
-		}
-
-	}
+    }
 
 }

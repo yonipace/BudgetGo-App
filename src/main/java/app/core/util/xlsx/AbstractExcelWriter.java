@@ -2,7 +2,9 @@ package app.core.util.xlsx;
 
 import app.core.entities.Trip;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.ReflectionUtils;
@@ -23,8 +25,10 @@ public abstract class AbstractExcelWriter<T> {
     private XSSFSheet sheet;
 
     // header row style
-//    CellStyle cellStyle = workbook.createCellStyle();
-//    XSSFFont font = workbook.createFont();
+    CellStyle cellStyle;
+    CellStyle headerStyle;
+    XSSFFont font;
+    XSSFFont bold;
 
 
     //CTOR that receives a List of <T> and instantiates the workbook
@@ -32,6 +36,12 @@ public abstract class AbstractExcelWriter<T> {
 
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet(list.get(0).getClass().getName());
+        cellStyle = workbook.createCellStyle();
+        font = workbook.createFont();
+        headerStyle = workbook.createCellStyle();
+        bold = workbook.createFont();
+        bold.setBold(true);
+        headerStyle.setFont(bold);
         this.list = list;
     }
 
@@ -45,7 +55,7 @@ public abstract class AbstractExcelWriter<T> {
         int cellNumber = 0;
 
         for (Field field : fields) {
-            createCell(row, cellNumber++, field.getName());
+            createCell(row, cellNumber++, field.getName(), headerStyle);
         }
     }
 
@@ -57,21 +67,20 @@ public abstract class AbstractExcelWriter<T> {
         //iterate over each entity
         list.forEach(e ->
         {
-            System.out.println(e);
             AtomicInteger cellNumber = new AtomicInteger();
             Row row = sheet.createRow(rowCount.getAndIncrement());
 
             //iterate over the fields of each entity
             ReflectionUtils.doWithFields(e.getClass(), field -> {
                 field.setAccessible(true);
-                System.out.println(field.get(e));
-                createCell(row, cellNumber.getAndIncrement(), field.get(e));
+                createCell(row, cellNumber.getAndIncrement(), field.get(e), cellStyle);
             });
         });
     }
 
-    private void createCell(Row row, int cellNumber, Object value) {
+    private void createCell(Row row, int cellNumber, Object value, CellStyle style) {
         Cell cell = row.createCell(cellNumber);
+        cell.setCellStyle(style);
         if (value instanceof Integer) {
             cell.setCellValue((int) value);
         } else if (value instanceof Double) {
